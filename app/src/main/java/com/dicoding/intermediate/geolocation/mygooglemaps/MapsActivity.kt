@@ -27,6 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.dicoding.intermediate.geolocation.mygooglemaps.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -124,6 +125,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         getMyLocation()
         setupMapStyle()
+        addManyMarker()
     }
 
     private val requestPermissionLauncher =
@@ -176,6 +178,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         vectorDrawable.draw(canvas)
 
         return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
+
+    data class TourismPlace(
+        val name: String,
+        val latitude: Double,
+        val longitude: Double
+    )
+
+    private val boundsBuilder = LatLngBounds.Builder()
+
+    private fun addManyMarker() {
+        val tourismPlace = listOf(
+            TourismPlace("Floating Market Lembang", -6.8168954,107.6151046),
+            TourismPlace("The Great Asia Africa", -6.8331128,107.6048483),
+            TourismPlace("Rabbit Town", -6.8668408,107.608081),
+            TourismPlace("Alun-Alun Kota Bandung", -6.9218518,107.6025294),
+            TourismPlace("Orchid Forest Cikole", -6.780725, 107.637409)
+        )
+        tourismPlace.forEach { tourism ->
+            val latlng = LatLng(tourism.latitude, tourism.longitude)
+            mMap.addMarker(MarkerOptions().position(latlng).title(tourism.name))
+            boundsBuilder.include(latlng)
+        }
+
+        val bounds = boundsBuilder.build()
+
+        mMap.animateCamera(
+            CameraUpdateFactory.newLatLngBounds(
+                bounds,
+                resources.displayMetrics.widthPixels,
+                resources.displayMetrics.heightPixels,
+                300
+            )
+        )
     }
 
     companion object {
