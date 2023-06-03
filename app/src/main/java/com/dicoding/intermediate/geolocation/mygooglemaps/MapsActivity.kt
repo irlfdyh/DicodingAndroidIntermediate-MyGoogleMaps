@@ -1,6 +1,7 @@
 package com.dicoding.intermediate.geolocation.mygooglemaps
 
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.dicoding.intermediate.geolocation.mygooglemaps.databinding.ActivityMapsBinding
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -121,6 +123,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         getMyLocation()
+        setupMapStyle()
     }
 
     private val requestPermissionLauncher =
@@ -137,6 +140,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.isMyLocationEnabled = true
         } else {
             requestPermissionLauncher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    private fun setupMapStyle() {
+        try {
+            val success =
+                mMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
         }
     }
 
@@ -160,6 +176,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         vectorDrawable.draw(canvas)
 
         return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
+
+    companion object {
+        private const val TAG = "MapsActivity"
     }
 
 }
